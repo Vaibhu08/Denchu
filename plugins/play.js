@@ -30,7 +30,7 @@ let handler = async (m, { conn, command, text, usedPrefix }) => {
 *Audio File Size:* ${filesizeF}
 *Video File Size:* ${yt2.filesizeF}
 *Server y2mate:* ${usedServer}
-`.trim(), '© tokio', 'Audio', `)yta ${vid.url}`, 'Video', `)yt ${vid.url}`)
+`.trim(), '© tokio', 'Audio', `${usedPrefix}yta ${vid.url}`, 'Video', `${usedPrefix}yt ${vid.url}`)
 }
 handler.help = ['play'].map(v => v + ' <search>')
 handler.tags = ['downloader']
