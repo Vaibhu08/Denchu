@@ -45,10 +45,10 @@ const defaultMenu = {
 📅 Date: *%week, %date*
 💠 Github: github.com/Chingkheinganba06/tokio-wabot
 
-👇🏻 All usable commands are listed below 
+📣 All usable commands are listed below ⬇️
 
 %readmore`.trimStart(),
-  header: '        *━━❰･%category･❱━━*',
+  header: '        *❄━━❰･%category･❱━━❄*',
   body: ' ☃️ %cmd %islimit %isPremium',
   footer: ' ',
   after: `🌟 *Hope you're enjoying Toman-bot, have a great day* 
