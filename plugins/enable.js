@@ -58,6 +58,12 @@ let handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, isR
       chat.autodelvn = isEnable
       break
     case 'document':
+       if (m.isGroup) {
+        if (!(isAdmin || isOwner)) {
+          global.dfail('admin', m, conn)
+          throw false
+        }
+      }
       chat.useDocument = isEnable
       break
     case 'public':
@@ -76,6 +82,15 @@ let handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, isR
         }
       }
       chat.antiLink = isEnable
+      break
+    case 'nsfw':
+      if (m.isGroup) {
+        if (!(isAdmin || isOwner)) {
+          global.dfail('admin', m, conn)
+          throw false
+        }
+      }
+      chat.nsfw = isEnable
       break
     case 'autolevelup':
       isUser = true
@@ -153,7 +168,7 @@ let handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, isR
       }
       chat.viewonce = isEnable
       break
-      case 'simi':
+    case 'simi':
       if (m.isGroup) {
         if (!(isAdmin || isOwner)) {
           global.dfail('admin', m, conn)
@@ -164,12 +179,13 @@ let handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, isR
       break
     default:
       if (!/[01]/.test(command)) throw `
-List option:
+List of options: 
 
 | welcome 
 | delete 
 | public 
 | antilink 
+| nsfw 
 | autolevelup 
 | detect 
 | document 
@@ -179,7 +195,7 @@ List option:
 | autoread 
 | pconly 
 | gconly 
-| swonly 
+| swonly
 | simi
 | viewonce
 
