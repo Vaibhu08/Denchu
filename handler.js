@@ -29,6 +29,8 @@ module.exports = {
           if (!isNumber(user.exp)) user.exp = 0
           if (!isNumber(user.limit)) user.limit = 10
           if (!isNumber(user.lastclaim)) user.lastclaim = 0
+          if (!isNumber(user.pc)) user.pc = 0
+          if (!isNumber(user.premiumDate)) user.premiumDate = 0
           if (!('registered' in user)) user.registered = false
           if (!user.registered) {
             if (!('name' in user)) user.name = this.getName(m.sender)
@@ -41,10 +43,12 @@ module.exports = {
           if (!isNumber(user.level)) user.level = 0
           if (!user.role) user.role = 'Beginner'
           if (!('autolevelup' in user)) user.autolevelup = false
+
         } else global.db.data.users[m.sender] = {
           exp: 0,
           limit: 20,
           lastclaim: 0,
+          pc: 0,
           registered: false,
           name: this.getName(m.sender),
           age: -1,
@@ -55,6 +59,8 @@ module.exports = {
           level: 0,
           role: 'Beginner',
           autolevelup: false,
+          premium: false,
+          premiumTime: 0,
         }
 
         let chat = global.db.data.chats[m.chat]
@@ -69,8 +75,11 @@ module.exports = {
           if (!('sDemote' in chat)) chat.sDemote = ''
           if (!('delete' in chat)) chat.delete = true
           if (!('antiLink' in chat)) chat.antiLink = false
+          if (!('nsfw' in chat)) chat.nsfw = false
           if (!('simi' in chat)) chat.simi = false
           if (!('viewonce' in chat)) chat.viewonce = false
+          if (!('premium' in user)) user.premium = false
+          if (!isNumber(user.premiumTime)) user.premiumTime = 0
         } else global.db.data.chats[m.chat] = {
           isBanned: false,
           welcome: false,
@@ -81,8 +90,31 @@ module.exports = {
           sDemote: '',
           delete: true,
           antiLink: false,
+          nsfw: false,
           simi: false,
           viewonce: false,
+        }
+
+      var setting = global.db.data.settings[this.user.jid]
+        if (typeof setting !== 'object') global.db.data.settings[this.user.jid] = {}
+        if (setting) {
+          if (!('anticall' in setting)) setting.anticall = false
+          if (!('autoread' in setting)) setting.autoread = false
+          if (!('nyimak' in setting)) setting.nyimak = false
+          if (!('restrict' in setting)) setting.restrict = false
+          if (!('self' in setting)) setting.self = false
+          if (!('pconly' in setting)) setting.pconly = false
+          if (!('gconly' in setting)) setting.gconly = false
+          if (!('getbot' in setting)) setting.getbot = false
+        } else global.db.data.settings[this.user.jid] = {
+          anticall: false,
+          autoread: false,
+          nyimak: false,
+          restrict: false,
+          self: false,
+          pconly: false,
+          gconly: false,
+          getbot: false,
         }
       } catch (e) {
         console.error(e)
@@ -115,7 +147,9 @@ module.exports = {
       let isROwner = [global.conn.user.jid, ...global.owner].map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
       let isOwner = isROwner || m.fromMe
       let isMods = isOwner || global.mods.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
-      let isPrems = isROwner || global.prems.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
+     // let isPrems = isROwner || global.prems.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
+      let isPrems = isROwner || global.db.data.users[m.sender].premium
+      let isNsfw = isROwner || global.db.data.chats[m.chat].nsfw
       let groupMetadata = m.isGroup ? this.chats.get(m.chat).metadata || await this.groupMetadata(m.chat) : {} || {}
       let participants = m.isGroup ? groupMetadata.participants : [] || []
       let user = m.isGroup ? participants.find(u => u.jid == m.sender) : {} // User Data
@@ -154,6 +188,7 @@ module.exports = {
           isAdmin,
           isBotAdmin,
           isPrems,
+          isNsfw,
           chatUpdate,
         })) continue
         if (typeof plugin !== 'function') continue
@@ -202,6 +237,10 @@ module.exports = {
           }
           if (plugin.premium && !isPrems) { // Premium
             fail('premium', m, this)
+            continue
+          }
+          if (plugin.nsfw && !isNsfw) { // NSFW
+            fail('nsfw', m, this)
             continue
           }
           if (plugin.group && !m.isGroup) { // Group Only
@@ -253,6 +292,7 @@ module.exports = {
             isAdmin,
             isBotAdmin,
             isPrems,
+            isNsfw,
             chatUpdate,
           }
           try {
@@ -402,8 +442,9 @@ global.dfail = (type, m, conn) => {
     group: 'This command can only be used in groups !',
     private: 'This command can only be used in Private Chat !',
     admin: 'This command is only for *Group Admin* !',
-    botAdmin: 'Make bot as *Admin* to use this command !',
-    unreg: 'Please register to use this feature by typing:\n\n*#register name.age*\n\nExample: *#register David.21*'
+    botAdmin: 'Make Draken-Kun as *Admin* to use this command !',
+    nsfw: 'This command is only for use with the *NSFW* feature !',
+    unreg: 'Please register to use this feature by typing:\n\n*#register name.age*\n\nExample: *)register Draken.18*'
   }[type]
   if (msg) return m.reply(msg)
 }
